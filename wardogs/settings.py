@@ -119,7 +119,7 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASE = 2
+DATABASE = 2 # 2 for 
 
 if (DATABASE == 2):
     DATABASES = {
@@ -128,10 +128,6 @@ if (DATABASE == 2):
             'NAME': 'wardogs_db',
             'USER':'postgres',
             'PASSWORD':'matiasbugaty',
-
-"""             'HOST': 'localhost',
-            'PORT':'5432', """
-
             'TEST': {
                 'NAME': 'test_wardogs_db',
             },
