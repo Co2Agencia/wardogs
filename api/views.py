@@ -134,6 +134,7 @@ def usuarioCreate(request):
 				data['response'] = f"Usuario {cuenta.username} registrado con exito!"
 				data["email"] = cuenta.email
 				data["username"] = cuenta.username
+				data["id"] = cuenta.id
 				token = Token.objects.get(user=cuenta).key
 				data["token"] = token
 				
@@ -545,6 +546,7 @@ def misionCreate(request):
 	if serializer.is_valid():
 		if request.user.is_superuser:
 			serializer.save()
+			mision = Mision.objects.get(id = serializer.data["id"])
 			data["success"] = "Mision Creada con exito!"
 			data["status"] = 200
 			data["mision"] = serializer.data

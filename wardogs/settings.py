@@ -119,12 +119,32 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+DATABASE = 2
+
+if DEBUG and (DATABASE == 1):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+
+elif (DATABASE == 2):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'wardogs_db',
+            'USER':'postgres',
+            'PASSWORD':'matiasbugaty',
+            'HOST': 'localhost',
+            'PORT':'5432',
+            'TEST': {
+                'NAME': 'test_wardogs_db',
+            },
+        }
+    }
+
+
 
 # Autenticacion de usuarios
 AUTH_USER_MODEL = 'api.Usuario'
@@ -171,9 +191,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "frontend/static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
