@@ -119,7 +119,7 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASE = 2 # 2 for 
+DATABASE = 2
 
 if (DATABASE == 2):
     DATABASES = {
