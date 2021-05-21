@@ -1,0 +1,1 @@
+web: gunicorn wardogs.wsgi --log-file -
