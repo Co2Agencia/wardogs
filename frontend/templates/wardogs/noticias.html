@@ -1,0 +1,154 @@
+{% extends 'wardogs/layout.html' %} {% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'wardogs/css/noticias.css' %}" />
+<link rel="stylesheet" href="{% static 'wardogs/css/slider.css' %}" />
+{% endblock %}
+
+{% block title %} Test {% endblock %}
+
+{% block body %}
+{{token|json_script:"user_token"}}
+
+<!-- Banner -->
+<div class="banner-contenedor banner-noticias">
+  <div class="banner-img">
+  </div>
+
+  <div class="texto-banner">
+    
+    <div class="titulos-noticias">
+      <h1>PORTAL <span></span></h1>
+      <p>Todos los eventos y noticias</p>
+    </div>
+
+  </div>
+
+  <div class="flecha-banner">
+    <p>NOTICIAS</p>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+
+</div>
+
+<!-- Carousel -->
+<h3 id="titulo-slider">ULTIMAS NOTICIAS</h3>
+<div class="slider-contenedor" id="slider-contenedor">
+  
+  <div id="slider" class="slider">
+    <div class="wrapper">
+      <div id="slides" class="slides">
+
+        {% for noticia in noticias %}
+        <!-- Slide -->
+        <span class="slide">
+          <div class='noticia-master'>
+            <div class='noticia-contenedor'>
+
+                <div class='noticia slide-noticia-{{noticia.id}}'>
+
+                    <div class='img-noticia'>
+                        <img src='{{noticia.img.url}}'>
+                    </div>
+
+                    <div class='info-noticia'>
+                    
+                    <!-- Autor -->
+                    <div class='autor-noticia'>
+                        <div class='img-autor'>
+                          {% if noticia.autor.img %}
+                            <img src='{{noticia.autor.img.url}}'>
+                          {% else %}
+                            <img src='{% static 'wardogs/img/default_user.jpg' %}'>
+                          {% endif %}
+                        </div>
+                        <h4>{{noticia.usuario.username}}</h4>
+                        <div class='valoracion-autor'>
+                            <span>{{noticia.megustaData.total}}</span>
+                            {% if noticia.megustaData.total  == 0 %}
+                            <i class="far fa-thumbs-up" id="btn-megusta" onClick="meGusta({{noticia.id}})"></i>
+
+                            {% else %}
+                            {% for key, values in noticia.megustaData.megustas.items %}
+                              {% if values.usuario_id == request.user.id %}
+                              <i class="fas fa-thumbs-up" id="btn-megusta" onClick="meGusta({{noticia.id}})"></i>
+                              {% else %}
+                              <i class="far fa-thumbs-up" id="btn-megusta" onClick="meGusta({{noticia.id}})"></i>
+                              {% endif %}
+                            {% endfor %}
+
+                            {% endif %}
+
+
+
+                        </div>
+                    </div>
+                    <!-- Titulos -->
+                    <div class='titulos-noticia'>
+                        <h3>{{noticia.titulo}}</h3>
+                        <p>{{noticia.subtitulo}}</p>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class='descripcion-noticia'>
+                        <p>{{noticia.descripcion}}</p>
+                    </div>
+
+                    <!-- Fecha -->
+                    <p class='fecha-noticia'>Creado el {{noticia.fecha}}</p>
+
+                    <!-- Acciones -->
+                    <div class="acciones-noticia">
+                      {% if request.user.id == noticia.usuario.id %}
+                      <i class="fas fa-trash" onclick='return confirm("Seguro que desea eliminar noticia nº{{noticia.id}}?")?eliminarNoticia({{noticia.id}}):"";'></i>
+                      <i class="fas fa-pen" onclick='editarNoticia("noticia",{{noticia.id}})'></i>
+                      {% endif %}
+                      <p>Noticia nº{{noticia.id}}</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+          </div>
+        </span>
+        {% endfor %}
+
+      </div>
+    </div>
+    <a id="prev" class="control prev"><i class="fas fa-chevron-left"></i></a>
+    <a id="next" class="control next"><i class="fas fa-chevron-right"></i></a>
+  </div>
+</div>
+
+
+
+
+
+<!-- Filtros -->
+<div id="filtros-contenedor">
+  <form class="buscar-filtro">
+    <input type="text" name="dato" placeholder="Buscar noticia..."  autocomplete="off"/>
+    <button><i class="fas fa-search"></i></button>
+  </form>
+
+  <form class="ordenar-filtro">
+    <label for="ordenar-noticia">Ordenar por</label>
+    <select name="ordenar-noticia" id="ordenar-noticia">
+      <option value="-fecha">Mas reciente</option>
+      <option value="fecha">Mas viejo</option>
+      <option value="megusta">Titulo</option>
+    </select>
+  </form>
+</div>
+
+<!-- Noticias -->
+<div id="noticias"></div>
+<!-- Pagination -->
+<div id="pagination-master"></div>
+
+
+
+<script src="{% static 'wardogs/js/slider.js' %}" defer></script>
+<script src="{% static 'wardogs/js/noticias.js' %}" defer></script>
+{% endblock %}

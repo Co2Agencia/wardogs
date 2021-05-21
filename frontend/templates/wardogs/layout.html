@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+    <link rel="stylesheet" href="{% static 'wardogs/css/layout.css' %}">
+    <script src="{% static 'wardogs/js/layout.js' %}" defer></script>
+    {% block head %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+    <nav>
+        <div class="nav-logo">
+            <a href="#">
+                <img src="{% static 'wardogs/img/logo.png' %}" alt="">
+            </a>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-link">
+                <a href="#">Inicio</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Misiones</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Miembros</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Nosotros</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Insignias</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Noticias</a>
+            </li>
+            <li class="nav-link">
+                <a href="#">Foro</a>
+            </li>
+        </ul>  
+
+        <div class="nav-usuarios">
+            {% if user.is_authenticated %}
+                <div class="nav-usuario-contenedor">
+                    <div class="nav-usuario-img">
+                    {% if user.imgUsuario %}
+                        <img src="{{request.user.imgUsuario.url}}" alt="Imagen del usuario {{ request.user.username }}" class="nav-usuario-imagen">
+                    {% else %}
+                        <img src="{% static 'wardogs/img/default_user.jpg' %}" alt="Imagen del usuario {{ request.user.username }}" class="nav-usuario-imagen">
+                    {% endif %}
+                    </div>
+                    
+                    <p>{{request.user.username}}</p>
+                </div>
+            {% else %}
+                <a href="#" class="btn-ingresar">Ingresar</a>
+                <a href="#" class="btn-registrarse">Registrarse</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if user.is_superuser %}
+        <div id="acciones-contenedor"></div>
+    {% endif %}
+
+    
+    {{user.is_superuser|json_script:"user_superuser"}}
+    {{request.user.id|json_script:"user_id"}} 
+    {% block body %} {% endblock %}
+  </body>
+</html>
