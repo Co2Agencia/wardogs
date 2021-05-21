@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
 import sys
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,8 +136,10 @@ elif (DATABASE == 2):
             'NAME': 'wardogs_db',
             'USER':'postgres',
             'PASSWORD':'matiasbugaty',
-            'HOST': 'localhost',
-            'PORT':'5432',
+
+"""             'HOST': 'localhost',
+            'PORT':'5432', """
+            
             'TEST': {
                 'NAME': 'test_wardogs_db',
             },
