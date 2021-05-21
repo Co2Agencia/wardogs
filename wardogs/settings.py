@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 import sys
-from pathlib import Path
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -128,6 +128,8 @@ if (DATABASE == 2):
             'NAME': 'wardogs_db',
             'USER':'postgres',
             'PASSWORD':'matiasbugaty',
+            'HOST': '',
+            'PORT':'5432',
             'TEST': {
                 'NAME': 'test_wardogs_db',
             },
