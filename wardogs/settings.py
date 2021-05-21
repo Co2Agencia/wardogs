@@ -121,15 +121,7 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 DATABASE = 2
 
-if DEBUG and (DATABASE == 1):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-
-elif (DATABASE == 2):
+if (DATABASE == 2):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
