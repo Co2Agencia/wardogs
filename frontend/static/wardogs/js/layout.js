@@ -677,10 +677,17 @@ class Banners{
         img.setAttribute("alt", `Banner ${data.sector}`)
 
         bannerImg.innerHTML = ""
-        bannerImg.appendChild(img)
+        
+        if(data){
+            bannerImg.appendChild(img)
+        }
+        else{
+            console.log("No hay banner para sector "+sector+".")
+        }
+
 
         if(user_superuser){
-            bannerImg.appendChild(i)
+            bannerImg.appendChild(i) // Pone el icono de editar si es superusuario
         }
     }
 
@@ -696,7 +703,7 @@ class Banners{
     getBanner(sector){
         let url = `api/banner-detail/${sector}`
 
-        return fetch(url).then(response => response.json()).then(data=> {return data})
+        return fetch(url).then(response => response.json()).then(data=> {return data}).catch((error)=>{return undefined})
     }
     
     async editForm(sector){
