@@ -116,39 +116,10 @@ WSGI_APPLICATION = 'wardogs.wsgi.application'
 # Para el ID de los models:
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
 
+
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASE = 2
-
-# if (DATABASE == 2):
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'wardogs_db',
-#             'USER':'postgres',
-#             'PASSWORD':'matiasbugaty',
-#             'HOST': '',
-#             'PORT':'',
-#             'TEST': {
-#                 'NAME': 'test_wardogs_db',
-#             },
-#         }
-#     }
-# else:
-#     DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-
-# urllib.parse.uses_netloc.append('postgres')
-
-POSTGRES_URL = "HEROKU_POSTGRESQL_PURPLE_URL"
-
 import dj_database_url
+POSTGRES_URL = "HEROKU_POSTGRESQL_PURPLE_URL"
 
 if 'DATABASES' not in locals():
     DATABASES = {}
@@ -158,30 +129,8 @@ if POSTGRES_URL in os.environ:
     DATABASES = {}
     DATABASES['default'] = dj_database_url.config(default=os.environ[POSTGRES_URL])
 
-# try:
-#     if 'DATABASES' not in locals():
-#         DATABASES = {}
 
-#     if 'DATABASE_URL' in os.environ:
-#         url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
-#         # Ensure default database exists.
-#         DATABASES['default'] = DATABASES.get('default', {})
-#         # Update with environment configuration.
-#         DATABASES['default'].update({
-#             'NAME': url.path[1:],
-#             'USER': url.username,
-#             'PASSWORD': url.password,
-#             'HOST': url.hostname,
-#             'PORT': url.port,
-#         })
-#         if url.scheme == 'postgres':
-#             DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
-
-# except Exception:
-#     print('Unexpected error:', sys.exc_info() )
-
-
-# Autenticacion de usuarios
+# Modelo de autenticacion de usuarios
 AUTH_USER_MODEL = 'api.Usuario'
 
 AUTHENTICATION_BACKENDS = ( 
