@@ -14,6 +14,7 @@ urlpatterns = [
 	
 	# Login
 	path('login', views.usuarioLogin, name="login"),
+	
 	# img Usuario
 	path('img-usuario-create', views.imgUsuarioCreate, name="img-usuario-create"),
 	path('img-usuario-list', views.imgUsuarioList, name="img-usuario-list"),
