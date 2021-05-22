@@ -128,7 +128,7 @@ if (DATABASE == 2):
             'USER':'postgres',
             'PASSWORD':'matiasbugaty',
             'HOST': '',
-            'PORT':'5432',
+            'PORT':'',
             'TEST': {
                 'NAME': 'test_wardogs_db',
             },
