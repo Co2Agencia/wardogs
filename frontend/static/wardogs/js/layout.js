@@ -175,6 +175,7 @@ window.addEventListener("click", function(e){
     let $class = $target.className
     let $id = $target.id
     
+    // Click en login
     if($class == "btn-ingresar"){
         let ef = new EditForm()
         ef.total("login", 1, false)
@@ -359,24 +360,17 @@ formAcciones.addEventListener("submit", function(e){
             "Authorization": token
         },
     }).then((response) => {
-        console.log(response)
-    }).then((success)=>{
-        console.log(success)
+        if(response.status == 200){
+            console.log("Noticia Creada!")
+            location.reload
+            return false
+        }
+        else{
+            console.log(response)
+        }
     }).catch(error=>console.log(error))
 
-    // for(let key of fd.keys()){
-    //     if(fd.get(key).size >= 2000000){
-    //     return console.log(`El archivo ${fd.get(key).name} pesa mas de 2MB.`)
-    //     }
-    //     else if(fd.get(key).size < 2000000){
-    //     console.log(`El archivo ${fd.get(key).name} pesa menos de 2MB.`)
-    //     }
-    //     else{
-    //     console.log(key, fd.get(key))
-    //     }
-    // }
     this.reset()
-
 })
 
 
@@ -441,8 +435,11 @@ class EditForm{
                 input.setAttribute("type", value.tipo)
                 if(editar){
                     input.value = value.value
+                    input.classList.add("editar-input-active")
+                    label.classList.add("editar-label-active")
                 }
                 if(value.required == "true"){
+                    console.log(key+ " es required.")
                     input.required = "true"
                 }
                 cont.appendChild(label)
@@ -655,7 +652,8 @@ formEdit.addEventListener("submit", function(e){
         },
     }).then(response=>{
         if(response.status == 200 || 201){
-            location.reload()
+            location.reload();
+            return false;
         }
     })
     .catch(error => console.log(error.error))

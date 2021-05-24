@@ -591,10 +591,10 @@ inputsAcciones["noticia"] = {
     tipo:"text", label:"Titulo", required:"true"
   },
   subtituloNoticia:{
-    tipo:"text", label: "Subtitulo"
+    tipo:"text", label: "Subtitulo", required:"true"
   },
   descNoticia:{
-    tipo: "textarea", label: "Descripción"
+    tipo: "textarea", label: "Descripción", required:"true"
   },
   imgNoticia:{
     tipo: "file", label:"Imágen"

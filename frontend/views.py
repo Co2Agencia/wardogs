@@ -1,3 +1,5 @@
+from json.encoder import JSONEncoder
+from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
