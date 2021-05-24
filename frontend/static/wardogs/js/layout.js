@@ -19,7 +19,7 @@ bannerSubCon.className = "editar-banner"
 
 // Acciones Elementos
 const inputsAcciones = {}
-let usuarioFormCheck = ["noticia"]
+let usuarioFormCheck = ["noticia"] // Se ponen los models que necesitan que el usuario este registrado
 const urlAcciones = {}
 const accionesContenedor = document.getElementById("acciones-contenedor")
 let btnFormAccionesCerrar = document.createElement("button")
@@ -34,7 +34,13 @@ let formEditContenedor = document.createElement("div")
 formEditContenedor.className = "form-edit-contenedor"
 
 
-// NavBar al scrollear
+// Alerta elementos
+const alertaCont = document.createElement("div")
+alertaCont.className = "alerta-contenedor"
+
+
+// NavBar Scroll Trigger
+/* ===================================================== */
 window.addEventListener("scroll", function(){
     let scrollTop = document.documentElement.scrollTop
 
@@ -55,7 +61,9 @@ window.addEventListener("scroll", function(){
 
 })
 
+
 // Datos del usuario
+/* ===================================================== */
 class UsuarioAcciones{
     async logout(){
         let url = 'api/login'
@@ -96,7 +104,8 @@ class UsuarioAcciones{
 }
 
 
-// Nav usuario links eventos
+// Nav usuario links eventos | Registrarse(singup), Ingresar(login), etc |
+/* ===================================================== */
 if(user_id){
     let clickContext = 0;
     let navUsuarioLinks = document.createElement("div")
@@ -181,6 +190,12 @@ window.addEventListener("click", function(e){
         ef.total("login", 1, false)
     }
     
+    // Click en registrarse
+    if($class == "btn-registrarse"){
+        let ef = new EditForm()
+        ef.total("signup", 1, false)
+    }
+
     // Click en ver contraseña icon
     if($id == "password-ver"){
         let parent = $target.closest(".editar-password-contenedor")
@@ -200,10 +215,17 @@ window.addEventListener("click", function(e){
     }
 })
 
+// Cuando usuario teclea en un input
 window.addEventListener("keyup", function(e){
     let $target = e.target
-    let $class = e.target.classList
+    let $class = $target.classList
+    let $name = $target.getAttribute("name")
+    let form = $target.closest(".editar-form")
+    let cont = $target.closest(".editar-input-contenedor")
+    let Alert = new Alerta
+    
 
+    // Cuando escribe en editar-input levanta el label
     if($class[1] == "editar-input"){
         let parent = $target.closest(".editar-input-contenedor")
         let label = parent.children[0]
@@ -215,12 +237,61 @@ window.addEventListener("keyup", function(e){
             label.classList.remove("editar-label-active")
             $target.classList.remove("editar-input-active")
         }
-        
     }
+
+    if($name == "confirm_password"){
+        let password = form.querySelector("input[name='password']")
+        let passCont = password.closest(".editar-input-contenedor")
+        if($target.value !== password.value){
+            cont.style.border = "1px solid red"
+            passCont.style.border = "1px solid red"
+            Alert.crear(404, "Las contraseñas no coinciden.")
+        }
+        else{
+            passCont.style.border = "1px solid springgreen"
+            cont.style.border = "1px solid springgreen"
+            Alert.crear(200, "Las contraseñas coinciden.")
+        }
+
+        // Si no hay nada en los inputs elimina la alerta
+        if($target.value.length == 0 && password.value.length == 0){
+            body.removeChild(alertaCont)
+            cont.style.border = "1px solid rgba(0, 0, 0, 0.2)"
+            passCont.style.border = "1px solid rgba(0, 0, 0, 0.2)"
+        }
+    }
+
+    try{
+        if($name == "password"){
+            let confirm_password = form.querySelector("input[name='confirm_password']")
+            let confirm_passwordCont = confirm_password.closest(".editar-input-contenedor")
+    
+            if($target.value !== confirm_password.value){
+                cont.style.border = "1px solid red"
+                confirm_passwordCont.style.border = "1px solid red"
+                Alert.crear(404, "Las contraseñas no coinciden.")
+            }
+            else{
+                confirm_passwordCont.style.border = "1px solid springgreen"
+                cont.style.border = "1px solid springgreen"
+                Alert.crear(200, "Las contraseñas coinciden.")
+            }
+    
+            // Si no hay nada en los inputs elimina la alerta
+            if($target.value.length == 0 && confirm_password.value.length == 0){
+                body.removeChild(alertaCont)
+                cont.style.border = "1px solid rgba(0, 0, 0, 0.2)"
+                confirm_passwordCont.style.border = "1px solid rgba(0, 0, 0, 0.2)"
+            }
+        }
+    }catch{}
+    
+
 })
 
 
 // Cookies (csrf token)
+/* ===================================================== */
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -239,6 +310,7 @@ function getCookie(name) {
 
 
 // Ejecutadores y creadores de acciones
+/* ===================================================== */
 function agregarAccion(accion){
     let btnAccion = document.createElement("button")
     btnAccion.className = `crear-${accion}-btn`
@@ -341,7 +413,7 @@ formAcciones.addEventListener("submit", function(e){
     let accion = this.getAttribute("data-accion")
     let url = urlAcciones[`${accion}`]
     let token = `token ${user_token}`
-
+    console.log("Se envio")
     const thisForm = new FormData(this)
     let fd = new FormData()
 
@@ -352,7 +424,7 @@ formAcciones.addEventListener("submit", function(e){
         fd.append('img', thisForm.get("imgNoticia"))
         fd.append('usuario', user_id)
     }
-  
+    console.log("Se envio")
     fetch(url, {
         method:"POST",
         body:fd,
@@ -376,6 +448,8 @@ formAcciones.addEventListener("submit", function(e){
 
 // Formulario Edit
 // Diccionarios para inputsEdit
+/* ===================================================== */
+
 inputsEditar["noticia"] = {
     titulo:{
       tipo:"text", label:"Titulo", required:"true"
@@ -400,6 +474,23 @@ inputsEditar["login"] = {
     },
   }
 
+inputsEditar["signup"] = {
+    username:{
+        tipo:"text", label:"Nombre de usuario", required:"true"
+      },
+
+    email:{
+        tipo:"email", label:"Correo elecotrónico", required:"true"
+      },
+
+    password:{
+        tipo:"password", label:"Contraseña", required:"true"
+    },
+
+    confirm_password:{
+        tipo:"password", label:"Confirmar contraseña", required:"true"
+    },
+}
 
 class EditForm{
     /* ¿Como funciona?
@@ -422,7 +513,6 @@ class EditForm{
             let label = document.createElement("label")
             label.setAttribute("for", key)
             label.innerHTML = value.label
-            // contenedor.appendChild(label)
     
             // Analizando que tipo de input es
             if(value.tipo !== "textarea" && value.tipo !== "file" && value.tipo !== "password" ){
@@ -439,7 +529,6 @@ class EditForm{
                     label.classList.add("editar-label-active")
                 }
                 if(value.required == "true"){
-                    console.log(key+ " es required.")
                     input.required = "true"
                 }
                 cont.appendChild(label)
@@ -450,6 +539,9 @@ class EditForm{
                 let cont = document.createElement("div")
                 let contCont = document.createElement("div")
                 cont.className = `editar-${key}-contenedor`
+                if(key !== "password"){
+                 cont.classList.add("editar-password-contenedor")   
+                }
                 contCont.className = `editar-input-contenedor`
 
                 let icon = document.createElement("i")
@@ -540,15 +632,24 @@ class EditForm{
     form(nombre, id){
         let titulo = document.createElement("h3")
         titulo.className = "editar-form-titulo"
-        
-        titulo.innerHTML = `Editar ${nombre}`
+        if(nombre == "login"){
+            titulo.innerHTML = `Ingresar`
+        }
+
+        else if(nombre == "signup"){
+            titulo.innerHTML = `Editar ${nombre}`
+            titulo.innerHTML = `Registrarse`
+        }
+
+        else{
+            titulo.innerHTML = `Editar ${nombre}`
+        }
 
         formEdit.className = `editar-form editar-${nombre}-form`
         formEdit.setAttribute(`data-id`, id)
         formEdit.setAttribute(`data-nombre`, nombre)
-        if(nombre !== "login"){
-            formEdit.appendChild(titulo)
-        }
+        formEdit.appendChild(titulo)
+
 
         return formEdit
     }
@@ -610,6 +711,10 @@ function cerrarEdit(){
         formEdit.innerHTML = ""
         formEditContenedor.innerHTML = ""
         body.removeChild(formEditContenedor)
+        try{
+            body.removeChild(alertaCont)
+        }
+        catch{}
     }
     catch(error){
         console.log("No hay un formulario de edit para eliminar")
@@ -620,6 +725,7 @@ formEdit.addEventListener("submit", function(e){
     e.preventDefault()
 
     let csrftoken = getCookie('csrftoken')
+    let $class = this.className
     let nombre = this.getAttribute("data-nombre")
     let id = this.getAttribute("data-id")
     let thisForm = new FormData(this)
@@ -628,32 +734,81 @@ formEdit.addEventListener("submit", function(e){
     let url = `api/${nombre}-update/${id}`
     let token = `token ${user_token}`
 
+
+    let header = {
+        "Authorization":token,
+    }
+
+    if(nombre == "login"){
+        url = `api/login`
+        header = {
+            "X-CSRFToken": csrftoken,
+        }
+    }
+
+    else if(nombre == "signup"){
+        url = `api/usuario-create`
+        header = {
+            "X-CSRFToken": csrftoken,
+        }
+    }
+
+
     // Guardando los inputs en "fd"
     for(const [key, value] of Object.entries(inputDict)){
         let input = thisForm.get(key)
         if(value.tipo === "file" && input.size > 0){
             fd.append(key, input)
         }
-        else if(value.tipo !== "file"){
+
+        // confirm_password no la pasamos porque podemos verificar en js.
+        else if(value.tipo !== "file" && key !== "confirm_password "){
             fd.append(key, input)
         }
     }
+
+    this.reset()
+    try{
+        body.removeChild(alertaCont)
+    }catch{}
 
     // Checkeando si hay que poner el id del usuario
     if(usuarioFormCheck.includes(nombre)){
         fd.append("usuario", user_id)
     }
+
     fetch(url,{
         method: "POST",
         body: fd,
-        headers:{
-            "Authorization":token,
-            "X-CSRFToken": csrftoken,
-        },
+        headers:header,
     }).then(response=>{
-        if(response.status == 200 || 201){
+        let status = response.status
+        console.log(status)
+        if(status == 200 && 201){
+            if(nombre == "login"){
+                Alert.crear(status, `Usuario ingresado con éxito.`)
+            }
+            if(nombre == "signup"){
+                Alert.crear(status, `Usuario registrado con éxito.`)
+            }
             location.reload();
             return false;
+        }
+        else if(status == 404){
+            if(nombre == "login"){
+                Alert.crear(status, `Los datos brindados no fueron correctos.`)
+            }
+            if(nombre == "signup"){
+                Alert.crear(status, `Los datos no fueron correctos, pruebe con otro nombre de usuario o email.`)
+            }
+        }
+        else if(status == 422){
+            if(nombre=="signup"){
+                Alert.crear(404, "Usuario ya existe.")
+            }
+        }
+        else{
+            console.log(response)
         }
     })
     .catch(error => console.log(error.error))
@@ -662,6 +817,7 @@ formEdit.addEventListener("submit", function(e){
 
 
 // Banners
+/* ===================================================== */
 class Banners{
     async ponerBanner(sector){
         let data = await this.getBanner(sector)
@@ -818,6 +974,7 @@ bannerForm.addEventListener("submit", function(e){
 
 
 // Checkea el archivo que se sube al banner edit form
+/* ===================================================== */
 bannerForm.addEventListener("change", async function(e){
     let parent = this.closest(".editar-banner")
     let imgBanner = parent.children[0].children[0]
@@ -877,6 +1034,7 @@ bannerForm.addEventListener("change", async function(e){
 
 
 // File Size Formatter & Image Checker
+/* ===================================================== */
 function formattedFileSize(file){
     let str = `${file.size}`
     let formattedSize;
@@ -904,7 +1062,44 @@ function imageChecker(img, archivosPermitidos){
     return data
 }
 
+
+
+// Alertas
+/* ===================================================== */
+class Alerta{
+    crear(tipo, texto){
+        alertaCont.innerHTML = ""
+        alertaCont.className = `alerta-contenedor alerta-${tipo}`
+
+        const p = document.createElement("p")
+        p.innerHTML = texto
+
+        const i = document.createElement("i")
+        i.className = "fas fa-times"
+
+        let altura = window.window.getComputedStyle(nav, null).getPropertyValue("height")
+
+        alertaCont.appendChild(p)
+        alertaCont.appendChild(i)
+        alertaCont.style.top = altura
+        body.insertAdjacentElement("afterbegin", alertaCont)
+    }
+}
+
+let Alert = new Alerta()
+
+alertaCont.addEventListener("click", function(e){
+    this.className = "alerta-contenedor"
+    let $target = e.target
+    let $tag = $target.tagName
+    if($tag == "I"){
+        body.removeChild(alertaCont)
+    }
+})
+
+
 // Evitando que se pueda acceder a los valores de los inputs
+/* ===================================================== */
 setTimeout(function(){
     for(const [key, value] of Object.entries(inputsAcciones)){
         Object.freeze(inputsAcciones[key])

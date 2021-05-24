@@ -58,8 +58,8 @@
                     <p>{{request.user.username}}</p>
                 </div>
             {% else %}
-                <a href="#" class="btn-ingresar">Ingresar</a>
-                <a href="#" class="btn-registrarse">Registrarse</a>
+                <a class="btn-ingresar">Ingresar</a>
+                <a class="btn-registrarse">Registrarse</a>
             {% endif %}
         </div>
     </nav>
@@ -69,8 +69,10 @@
     {% endif %}
 
     
-    {{user.is_superuser|json_script:"user_superuser"}}
-    {{request.user.id|json_script:"user_id"}} 
+
     {% block body %} {% endblock %}
+    {{user.is_superuser|json_script:"user_superuser"}}
+    {{token|json_script:"user_token"}}
+    {{request.user.id|json_script:"user_id"}} 
   </body>
 </html>

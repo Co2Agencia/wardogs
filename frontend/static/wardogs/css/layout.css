@@ -206,6 +206,7 @@ nav .nav-usuarios .btn-registrarse {
   -webkit-transition: ease 300ms;
   transition: ease 300ms;
   margin-right: 2rem;
+  cursor: pointer;
 }
 
 nav .nav-usuarios .btn-registrarse:hover {
@@ -216,6 +217,7 @@ nav .nav-usuarios .btn-registrarse:hover {
 
 nav .nav-usuarios .btn-ingresar {
   position: relative;
+  cursor: pointer;
 }
 
 nav .nav-usuarios .btn-ingresar:after {
@@ -599,7 +601,7 @@ nav .nav-usuarios .btn-ingresar:hover::after {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  /* Para form login */
+  /* Para form login y signup */
 }
 
 .form-edit-contenedor form {
@@ -716,7 +718,7 @@ nav .nav-usuarios .btn-ingresar:hover::after {
   height: 10rem;
 }
 
-.form-edit-contenedor .editar-login-form .editar-password-contenedor {
+.form-edit-contenedor .editar-login-form .editar-password-contenedor, .form-edit-contenedor .editar-signup-form .editar-password-contenedor {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -734,15 +736,64 @@ nav .nav-usuarios .btn-ingresar:hover::after {
   padding-right: 1rem;
 }
 
-.form-edit-contenedor .editar-login-form .editar-password-contenedor input {
+.form-edit-contenedor .editar-login-form .editar-password-contenedor input, .form-edit-contenedor .editar-signup-form .editar-password-contenedor input {
   border: none;
   outline: none;
 }
 
-.form-edit-contenedor .editar-login-form .editar-password-contenedor i {
+.form-edit-contenedor .editar-login-form .editar-password-contenedor i, .form-edit-contenedor .editar-signup-form .editar-password-contenedor i {
   margin-left: 1rem;
   width: 1rem;
   height: 1rem;
   font-size: 1rem;
+}
+
+.alerta-contenedor {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  color: white;
+  z-index: 100;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0.2rem 2rem;
+}
+
+.alerta-contenedor i {
+  border: 1px solid white;
+  width: 2rem;
+  height: 2rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-transition: ease 100ms;
+  transition: ease 100ms;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.alerta-contenedor i:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.alerta-404 {
+  background-color: #d74040;
+}
+
+.alerta-200, .alerta-201 {
+  background-color: #27ae27;
 }
 /*# sourceMappingURL=layout.css.map */

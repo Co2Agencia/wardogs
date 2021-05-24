@@ -138,6 +138,7 @@ def usuarioCreate(request):
 				token = Token.objects.get(user=cuenta).key
 				data["token"] = token
 				
+				authenticate(request, username=cuenta.username, password=cuenta.password)
 				return Response(data, status=status.HTTP_201_CREATED)
 
 	else:
