@@ -14,8 +14,6 @@ from rest_framework.authtoken.models import Token
 class Usuario(AbstractUser):
   email = models.EmailField(verbose_name="email", max_length=60, unique=True)
 
-  USERNAME_FIELD='email'
-  REQUIRED_FIELDS=['username']
 
   def imgUsuario(self, *args, **kwargs):
     if self.usuario_img:

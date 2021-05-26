@@ -81,7 +81,7 @@ class UsuarioTest(APITestCase):
 
     def test_get_token(self):
         url = reverse('api:token')
-        data = {'username': self.email, 'password':self.password}
+        data = {'username': self.username, 'password':self.password}
         response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -250,7 +250,6 @@ class NoticiaTest(APITestCase):
 
         self.assertEqual(response_si_noticia.status_code, status.HTTP_200_OK)
         self.assertEqual(response_no_noticia.status_code, status.HTTP_401_UNAUTHORIZED)
-
 
     def test_noticia_delete_token(self):
         client = self.tu.client_login(self.username)

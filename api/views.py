@@ -1,7 +1,7 @@
 from functools import partial
 
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
 
@@ -116,33 +116,22 @@ def usuarioCreate(request):
 	data = {}
 
 	if serializer.is_valid():
-		try:
-			usuario = Usuario.objects.get(username=serializer.validated_data["username"])
-			data["error"] = f"El nombre de usuario ya existe"
+		cuenta = serializer.save()
+		data["email"] = cuenta.email
+		data["username"] = cuenta.username
+		data["id"] = cuenta.id
+		token = Token.objects.get(user=cuenta).key
+		data["token"] = token
+		data["success"] = f"Usuario {cuenta.username} registrado con exito!"
+		data["status"] = 201
+		
+		login(request, cuenta, backend="api.backends.CaseInsensitiveModelBackend")
 
-			return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-
-		except:
-			try:
-				usuario = Usuario.objects.get(username=serializer.validated_data["email"])
-				data["error"] = f"El email ya existe"
-
-				return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-			
-			except:
-				cuenta = serializer.save()
-				data['response'] = f"Usuario {cuenta.username} registrado con exito!"
-				data["email"] = cuenta.email
-				data["username"] = cuenta.username
-				data["id"] = cuenta.id
-				token = Token.objects.get(user=cuenta).key
-				data["token"] = token
-				
-				authenticate(request, username=cuenta.username, password=cuenta.password)
-				return Response(data, status=status.HTTP_201_CREATED)
+		return Response(data, status=status.HTTP_201_CREATED)
 
 	else:
-		data = serializer.errors
+		data["error"] = serializer.errors
+
 		return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
@@ -190,40 +179,41 @@ def usuarioDelete(request, pk):
 def usuarioLogin(request):
 	data = {}
 
-	if not request.user.is_authenticated:
+	if not request.user.is_authenticated: # Si el usuario no esta autenticado
 		username = request.data["username"]
 		password = request.data["password"]
 
-		user = authenticate(request, username=username, password=password)
+		if "@" in username:
+			un = Usuario.objects.get(email=username)
+			username = un.username
+			user = authenticate(request, username=username, password=password)
+		
+		else:
+			user = authenticate(request, username=username, password=password)
+
 
 		if user is not None:
 			login(request, user)
-			data["success"] = f"Usuario {username} logeado con exito"
+			data["success"] = f"Usuario {username} logeado con exito!"
 			data["status"] = 200
 
 			return Response(data, status=status.HTTP_200_OK)
 
 		else:
-			try: # Prueba si existe el username. Si existe, devuelve el mail para autenticar.
+			try:
 				un = Usuario.objects.get(username=username)
-				email = un.email
-
-				user = authenticate(request, username=email, password=password)
-
-				data["success"] = f"Usuario {username} logeado con exito"
-				data["status"] = 200
-
-				return Response(data, status=status.HTTP_200_OK)
+				data["error"] = "Contraseña incorrecta."
+				data["status"] = 403
+				return Response(data, status=status.HTTP_403_FORBIDDEN)
 
 			except:
-				data["success"] = f"Usuario {username} no existe"
+				data["error"] = "No existe ningun usuario con esos datos. Ingrese otro usuario o correo electrónico."
 				data["status"] = 404
-
 				return Response(data, status=status.HTTP_404_NOT_FOUND)
-	
+
 	else:
 		logout(request)
-		data["success"] = f"Usuario salio con exito"
+		data["success"] = f"Usuario salio con exito!"
 		data["status"] = 205
 
 		return Response(data, status=status.HTTP_205_RESET_CONTENT)

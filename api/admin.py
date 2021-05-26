@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Noticia, Banner, Usuario
+from django.contrib.auth.admin import UserAdmin
+
 # Register your models here.
 
 class NoticiaAdmin(admin.ModelAdmin):
@@ -8,8 +10,8 @@ class NoticiaAdmin(admin.ModelAdmin):
 class BannerAdmin(admin.ModelAdmin):
     list_display = ('id','sector','fecha')
 
-class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id','username','email')
+class UsuarioAdmin(UserAdmin):
+    pass
 
 
 admin.site.register(Noticia, NoticiaAdmin)

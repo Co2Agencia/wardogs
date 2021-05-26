@@ -623,6 +623,9 @@ class EditForm{
         if(nombre == "login"){
             btn.innerHTML = `Ingresar`
         }
+        if(nombre == "signup"){
+            btn.innerHTML = `Registrarse`
+        }
         else{
             btn.innerHTML = `Editar`
         }
@@ -733,7 +736,10 @@ formEdit.addEventListener("submit", function(e){
     let inputDict = inputsEditar[`${nombre}`]
     let url = `api/${nombre}-update/${id}`
     let token = `token ${user_token}`
+    let btn = this.querySelector(".btn-form")
 
+
+    btn.disabled = true
 
     let header = {
         "Authorization":token,
@@ -767,7 +773,6 @@ formEdit.addEventListener("submit", function(e){
         }
     }
 
-    this.reset()
     try{
         body.removeChild(alertaCont)
     }catch{}
@@ -781,37 +786,32 @@ formEdit.addEventListener("submit", function(e){
         method: "POST",
         body: fd,
         headers:header,
-    }).then(response=>{
+    }).then(async response=>{
         let status = response.status
-        console.log(status)
-        if(status == 200 && 201){
-            if(nombre == "login"){
-                Alert.crear(status, `Usuario ingresado con éxito.`)
-            }
-            if(nombre == "signup"){
-                Alert.crear(status, `Usuario registrado con éxito.`)
-            }
+        let data = await response.json().then(data => data)
+
+        if(status == 200 || status == 201){
+            Alert.crear(status, data.success)
             location.reload();
             return false;
         }
-        else if(status == 404){
-            if(nombre == "login"){
-                Alert.crear(status, `Los datos brindados no fueron correctos.`)
-            }
-            if(nombre == "signup"){
-                Alert.crear(status, `Los datos no fueron correctos, pruebe con otro nombre de usuario o email.`)
-            }
-        }
-        else if(status == 422){
-            if(nombre=="signup"){
-                Alert.crear(404, "Usuario ya existe.")
-            }
+        else if(status == 500){
+            Alert.crear(404, "Hubo problemas internos con el servidor.")
         }
         else{
-            console.log(response)
+            btn.disabled = false
+
+            if(nombre == "signup"){
+                let errorString = "El nombre de usuario y/o correo electrónico ya existe."
+                return Alert.crear(404, errorString)
+            }
+            return Alert.crear(404, data.error)
         }
     })
-    .catch(error => console.log(error.error))
+    .catch(error => {
+        btn.disabled = false
+        console.log(error.error)
+    })
 })
 
 
