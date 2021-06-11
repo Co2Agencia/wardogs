@@ -71,6 +71,19 @@
     
 
     {% block body %} {% endblock %}
+    <footer>
+        <div class="footer-menu-links">
+            <h3 class="footer-menu-titulo">Menu</h3>
+
+            <a href="#" class="footer-menu-link">Inicio</a>
+            <a href="#" class="footer-menu-link">Misiones</a>
+            <a href="#" class="footer-menu-link">Miembros</a>
+            <a href="#" class="footer-menu-link">Nosotros</a>
+            <a href="#" class="footer-menu-link">Insignias</a>
+            <a href="#" class="footer-menu-link">Noticias</a>
+            <a href="#" class="footer-menu-link">Foro</a>
+        </div>
+    </footer>
     {{user.is_superuser|json_script:"user_superuser"}}
     {{token|json_script:"user_token"}}
     {{request.user.id|json_script:"user_id"}} 

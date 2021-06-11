@@ -117,6 +117,7 @@ class Mision(models.Model):
   fecha = models.DateTimeField(auto_now_add=True)
   titulo = models.CharField(max_length=200, null=False, blank=False)
   subtitulo = models.CharField(max_length=200, blank=True)
+  url = models.URLField(max_length=200, blank=True)
 
   def deleteImg(self):
     self.img.delete()

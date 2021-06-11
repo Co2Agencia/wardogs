@@ -389,11 +389,11 @@ class MisionTest(APITestCase):
 
 
         client_superuser = self.tu.client_login(self.username)
-
+        url_field = "https://www.youtube.com/watch?v=9P1HtbpGSCk"
         img = self.tu.temporary_image()
         # Mision
         url = reverse('api:mision-create')
-        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "img": img}
+        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "img": img, "url":url_field}
         response = client_superuser.post(url, data,format="multipart")
 
     
@@ -429,7 +429,7 @@ class MisionTest(APITestCase):
         no_superuser = self.tu.usuario_get(2)
 
         url = reverse('api:mision-update', kwargs={"pk":mision.id})
-        data = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
+        data = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image(), "url": "https://www.youtube.com/watch?v=JQ1mXXmJDYI"}
         data2 = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
         data3 = {'usuario': no_superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
 
