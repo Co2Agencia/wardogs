@@ -1,5 +1,6 @@
 import os, glob
 from django.test import TestCase
+from django.test import client
 from django.test.client import Client
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient, APITestCase
@@ -221,11 +222,9 @@ class NoticiaTest(APITestCase):
     def setUp(self):
         # Creando usuario
         url = reverse('api:usuario-create')
-        # data = {'username': self.username, 'email':self.email, 'password':self.password}
-        # response_client = self.client.post(url, data, format='json')
-        # usuario = Usuario.objects.get(username= self.username)
         usuario = self.tu.usuario_get(1, self.client)
         usuario.is_superuser = True
+        usuario.save()
         client = self.tu.client_login(self.username)
         img = self.tu.temporary_image()
 
@@ -233,8 +232,6 @@ class NoticiaTest(APITestCase):
         url = reverse('api:noticia-create')
         data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
         response = client.post(url, data,format="multipart")
-        print(f"Setup: {response.data}")
-
 
     def test_noticia_list(self):
         client = APIClient()
@@ -259,34 +256,29 @@ class NoticiaTest(APITestCase):
         self.assertEqual(response_no_noticia.status_code, status.HTTP_404_NOT_FOUND)
 
 
-    # def test_noticia_create(self):
-    #     img = self.tu.temporary_image()
-    #     img2 = self.tu.temporary_image()
+    def test_noticia_create(self):
+        img = self.tu.temporary_image()
+        img2 = self.tu.temporary_image()
 
-    #     # Usuario Normal
-    #     usuario = self.tu.usuario_get(1, self.client)
-    #     client = self.tu.client_login(self.username)
+        # Usuario SuperUser
+        superuser = self.tu.usuario_get(1, self.client)
+        superclient = self.tu.client_login(self.username)
 
-    #     # SuperUsuario
-    #     superuser = self.tu.usuario_get(2, self.client)
-    #     superuser.is_admin = True
-    #     superuser.is_superuser = True
-    #     superuser.is_staff = True
-    #     superclient = self.tu.client_login(self.username2)
+        # Usuario Normal
+        usuario = self.tu.usuario_get(2, self.client)
+        client = self.tu.client_login(self.username2)
 
-    #     print("Superuser username: "+superuser.username+f" Issupueruser: {superuser.is_superuser}")
+        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
+        data_superuser = {'usuario': superuser.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img2}
 
-    #     data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
-    #     data_superuser = {'usuario': superuser.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img2}
+        url = reverse('api:noticia-create')
 
-    #     url = reverse('api:noticia-create')
-
-    #     response = client.post(url, data,format="multipart")
+        response = client.post(url, data,format="multipart")
         
-    #     response_superuser = superclient.post(url, data_superuser, format = "multipart")
+        response_superuser = superclient.post(url, data_superuser, format = "multipart")
 
-    #     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    #     self.assertEqual(response_superuser.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response_superuser.status_code, status.HTTP_200_OK)
         
 
     def test_noticia_update(self):
@@ -344,7 +336,6 @@ class BannerTest(APITestCase):
         data = {'username': self.username, 'email':self.email, 'password':self.password}
         response1 = self.client.post(url, data, format='json')
         usuario = Usuario.objects.get(username= self.username)
-
         
         usuario.is_superuser = True
         usuario.save()
