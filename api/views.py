@@ -323,7 +323,6 @@ def noticiaUpdate(request, pk):
 				pass
 
 			if noticia.usuario.id == request.user.id:
-
 				try:
 					serializer.save()
 					data["success"] = "Noticia actualizada con exito!"
