@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+    <script type="text/javascript"> (function() { var css = document.createElement('link'); css.href = 'https://use.fontawesome.com/releases/v5.1.0/css/all.css'; css.rel = 'stylesheet'; css.type = 'text/css'; document.getElementsByTagName('head')[0].appendChild(css); })(); </script>
     <link rel="stylesheet" href="{% static 'wardogs/css/layout.css' %}">
     <script src="{% static 'wardogs/js/layout.js' %}" defer></script>
     {% block head %}{% endblock %}
@@ -64,7 +64,7 @@
         </div>
     </nav>
 
-    {% if user.is_superuser %}
+    {% if user.is_superuser or user.groups.all.0.name == 'Staff' %}
         <div id="acciones-contenedor"></div>
     {% endif %}
 
@@ -85,6 +85,9 @@
         </div>
     </footer>
     {{user.is_superuser|json_script:"user_superuser"}}
+    {% if user.groups.all.0 %}
+        <script id="user_group" type="application/json">"{{user.groups.all.0}}"</script>
+    {% endif %}
     {{token|json_script:"user_token"}}
     {{request.user.id|json_script:"user_id"}} 
   </body>

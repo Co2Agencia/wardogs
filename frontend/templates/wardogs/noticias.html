@@ -33,7 +33,7 @@
 <!-- Carousel -->
 <h3 id="titulo-slider">ULTIMAS NOTICIAS</h3>
 <div class="slider-contenedor" id="slider-contenedor">
-  
+{% if noticias|length > 0 %}
   <div id="slider" class="slider">
     <div class="wrapper">
       <div id="slides" class="slides">
@@ -118,6 +118,7 @@
     <a id="prev" class="control prev"><i class="fas fa-chevron-left"></i></a>
     <a id="next" class="control next"><i class="fas fa-chevron-right"></i></a>
   </div>
+{% endif %}
 </div>
 
 

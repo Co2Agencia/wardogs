@@ -17,7 +17,7 @@ let currentNoticia;
 const url = "api/noticia-list";
 
 // Banner
-banner.ponerBanner("noticia")
+let banner_noticia = banner.ponerBanner("noticia")
 
 
 // Carga noticias
@@ -615,7 +615,7 @@ urlAcciones["noticia"] = "api/noticia-create"
 urlAcciones["mision"] = "api/noticia-create"
 
 if(user_id){
-  if(user_superuser){
+  if(user_superuser || user_group == "Staff"){
     agregarAccion("noticia")
     agregarAccion("mision")
   }

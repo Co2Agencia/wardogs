@@ -5,6 +5,9 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
 
+# Para filtros
+from django import template
+
 # Tokens
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -167,7 +170,6 @@ def usuarioDelete(request, pk):
 			return Response(data, status=status.HTTP_200_OK)
 
 		else:
-			print("El usuario que intenta borrar no es el mismo que esta logueado")
 			data["error"] = "El usuario que intenta borrar no es el mismo que esta logueado"
 			return Response(data, status=status.HTTP_403_FORBIDDEN)
 	except:
@@ -250,18 +252,41 @@ def noticiaCreate(request):
 
 	if serializer.is_valid():
 		usuario = serializer.validated_data["usuario"]
-		if usuario == request.user:
-			serializer.save()
 
-			data["noticia"] = serializer.data
-			return Response(data, status=status.HTTP_200_OK)
+		if usuario == request.user:
+			user_group_len = len(request.user.groups.all())
+			super_check = request.user.is_superuser
+			print(f"supueruser: {super_check}, nombre: {request.user.username}")
+			if user_group_len > 0:
+				if request.user.groups.all()[0].name == "Staff":
+					serializer.save()
+
+					data["noticia"] = serializer.data
+					return Response(data, status=status.HTTP_200_OK)
+
+				else:
+					data["error"] = "No tiene permisos suficientes para crear noticia-"
+					data["status"] = 401
+					return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+			if super_check:
+			# else:
+					serializer.save()
+					data["noticia"] = serializer.data
+					return Response(data, status=status.HTTP_200_OK)
+			
+			else:
+				data["error"] = "No tiene permisos suficientes para crear noticia."
+				data["status"] = 401
+				return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
 		else:
 			data["error"]= "El usuario no es el mismo que esta logueado o no se logueo."
 			return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
 	else:
-		print(serializer.errors)
+		data["error"]= serializer.errors
+
 		return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
@@ -427,13 +452,17 @@ def meGustaCreate(request):
 @api_view(["GET"])
 @permission_classes(())
 def bannerDetail(request, sector):
+	data = {}
 	try:
 		banner = Banner.objects.get(sector=sector)
 		serializer = BannerSerializer(banner, many=False)
+
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 	except:
-		return Response(f"El banner para el sector {sector} no existe.", status=status.HTTP_404_NOT_FOUND)
+		data["error"] = f"El banner para el sector {sector} no existe."
+		data["status"] = 404
+		return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
@@ -498,9 +527,35 @@ def bannerUpdate(request, sector):
 			data["status"] = 422
 			return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
+	
+	# Si el banner no existe, lo crea
 	except:
-		data["error"] = "El banner no existe"
-		return  Response(data, status=status.HTTP_404_NOT_FOUND)
+		request_data = request.data
+		request_data["usuario"] = request.user.id
+		request_data["sector"] = sector
+		serializer = BannerSerializer(request_data)
+
+		if serializer.is_valid():
+			if request.user.is_superuser:
+				serializer.save()
+				data["success"] = "Banner creado con exito!"
+				data["status"] = 200
+				data["banner"] = {"sector": serializer.data["sector"], "img": serializer.data["img"]}
+				return Response(data, status=status.HTTP_200_OK)
+			elif not request.user.is_superuser:
+				data["error"] = "El usuario no es superuser."
+				data["status"] = 401
+				return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+			else:
+				data["error"] = "El usuario no tiene tokens."
+				data["status"] = 401
+				return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+		
+		else:
+			data["error"] = serializer.errors
+			data["status"] = 422
+			return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
 
 
 @api_view(["DELETE"])
@@ -657,3 +712,5 @@ class ApiNoticiaListView(ListAPIView):
 	# Filtros
 	filter_backends = (SearchFilter, OrderingFilter)
 	search_fields = ('titulo', 'subtitulo','descripcion','usuario__username')
+
+
