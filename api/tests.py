@@ -42,15 +42,34 @@ class TestUtils():
         client.credentials(HTTP_AUTHORIZATION=token)
 
         return client
-
-    def usuario_get(self, num):
+     
+    def usuario_get(self, num, self_client):
+        url = reverse('api:usuario-create')
+        password = self.usuarios_data["password"]
+        # Si no encuentra el usuario, lo crea
         if num == 1:
-            usuario = Usuario.objects.get(username=self.usuarios_data["username"])
-            return usuario
+            try:
+                usuario = Usuario.objects.get(username=self.usuarios_data["username"])
+                return usuario
+
+            except:
+                data = {'username': self.usuarios_data["username"], 'email':self.usuarios_data["email"], 'password':password}
+                response_client = self_client.post(url, data, format='json')
+                usuario = Usuario.objects.get(username=self.usuarios_data["username"])
+                return usuario
         
         elif num == 2:
-            usuario = Usuario.objects.get(username=self.usuarios_data["username2"])
-            return usuario
+            try:
+                usuario = Usuario.objects.get(username=self.usuarios_data["username2"])
+                return usuario
+
+            except:
+                data = {'username':self.usuarios_data["username2"], 'email':self.usuarios_data["email2"], 'password':password}
+                response_client = self_client.post(url, data, format='json')
+                usuario = Usuario.objects.get(username=self.usuarios_data["username2"])
+                return usuario
+
+
 
 """ Test Usuarios """
 class UsuarioTest(APITestCase):
@@ -90,7 +109,7 @@ class UsuarioTest(APITestCase):
     def test_usuario_detail(self):
         client = self.tu.client_login(self.username)
 
-        usuario = self.tu.usuario_get(1)
+        usuario = self.tu.usuario_get(1, self.client)
 
         url = reverse('api:usuario-detail', kwargs={'pk':usuario.id})
         url2 = reverse('api:usuario-detail', kwargs={'pk':usuario.id+5})
@@ -109,7 +128,7 @@ class UsuarioTest(APITestCase):
     def test_usuario_delete_token(self):
         client = self.tu.client_login(self.username)
 
-        usuario = self.tu.usuario_get(1)
+        usuario = self.tu.usuario_get(1, self.client)
 
         url = reverse('api:usuario-delete', kwargs={'pk':usuario.id})
 
@@ -145,7 +164,7 @@ class UsuarioTest(APITestCase):
         client = self.tu.client_login(self.username)
         client.credentials()
 
-        usuario = self.tu.usuario_get(1)
+        usuario = self.tu.usuario_get(1, self.client)
 
         url = reverse('api:usuario-delete', kwargs={'pk':usuario.id})
         response_no_token = client.delete(url)
@@ -195,22 +214,26 @@ class NoticiaTest(APITestCase):
     tu = TestUtils()
 
     username = tu.usuarios_data["username"]
+    username2 = tu.usuarios_data["username2"]
     email = tu.usuarios_data["email"]
     password = tu.usuarios_data["password"]
 
     def setUp(self):
         # Creando usuario
         url = reverse('api:usuario-create')
-        data = {'username': self.username, 'email':self.email, 'password':self.password}
-        response_client = self.client.post(url, data, format='json')
-        usuario = Usuario.objects.get(username= self.username)
-
+        # data = {'username': self.username, 'email':self.email, 'password':self.password}
+        # response_client = self.client.post(url, data, format='json')
+        # usuario = Usuario.objects.get(username= self.username)
+        usuario = self.tu.usuario_get(1, self.client)
+        usuario.is_superuser = True
         client = self.tu.client_login(self.username)
         img = self.tu.temporary_image()
+
         # Noticia
         url = reverse('api:noticia-create')
         data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
         response = client.post(url, data,format="multipart")
+        print(f"Setup: {response.data}")
 
 
     def test_noticia_list(self):
@@ -220,7 +243,7 @@ class NoticiaTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
+    
     def test_noticia_detail(self):
         client = self.tu.client_login(self.username)
 
@@ -235,7 +258,37 @@ class NoticiaTest(APITestCase):
         self.assertEqual(response_si_noticia.status_code, status.HTTP_200_OK)
         self.assertEqual(response_no_noticia.status_code, status.HTTP_404_NOT_FOUND)
 
+
+    # def test_noticia_create(self):
+    #     img = self.tu.temporary_image()
+    #     img2 = self.tu.temporary_image()
+
+    #     # Usuario Normal
+    #     usuario = self.tu.usuario_get(1, self.client)
+    #     client = self.tu.client_login(self.username)
+
+    #     # SuperUsuario
+    #     superuser = self.tu.usuario_get(2, self.client)
+    #     superuser.is_admin = True
+    #     superuser.is_superuser = True
+    #     superuser.is_staff = True
+    #     superclient = self.tu.client_login(self.username2)
+
+    #     print("Superuser username: "+superuser.username+f" Issupueruser: {superuser.is_superuser}")
+
+    #     data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
+    #     data_superuser = {'usuario': superuser.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img2}
+
+    #     url = reverse('api:noticia-create')
+
+    #     response = client.post(url, data,format="multipart")
         
+    #     response_superuser = superclient.post(url, data_superuser, format = "multipart")
+
+    #     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    #     self.assertEqual(response_superuser.status_code, status.HTTP_200_OK)
+        
+
     def test_noticia_update(self):
         client = self.tu.client_login(self.username)
 
@@ -262,9 +315,13 @@ class NoticiaTest(APITestCase):
 
     def test_noticia_delete_no_token(self):
         client = self.tu.client_login(self.username)
+        usuario = self.tu.usuario_get(1, self.client)
+
         client.credentials()
 
         url = reverse('api:noticia-delete', kwargs={"pk":1})
+
+
         response = client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -322,11 +379,11 @@ class BannerTest(APITestCase):
     def test_banner_update(self):
         # Usuario Superuser
         client = self.tu.client_login(self.username)
-        usuario = self.tu.usuario_get(1)
+        usuario = self.tu.usuario_get(1, self.client)
 
         # Usuario No Superuser
         client2 = self.tu.client_login(self.username2)
-        usuario2 = self.tu.usuario_get(2)
+        usuario2 = self.tu.usuario_get(2, self.client)
 
         for sector in SECTORES_NOMBRES:
             url = reverse(f'api:banner-update', kwargs={"sector": sector[1]})
@@ -377,7 +434,7 @@ class MisionTest(APITestCase):
         url = reverse('api:usuario-create')
         data = {'username': self.username, 'email':self.email, 'password':self.password}
         self.client.post(url, data, format='json')
-        usuario = self.tu.usuario_get(1)
+        usuario = self.tu.usuario_get(1, self.client)
 
         usuario.is_superuser = True
         usuario.save()
@@ -385,7 +442,7 @@ class MisionTest(APITestCase):
         # Creando usuario no Super
         data2 = {'username': self.username2, 'email':self.email2, 'password':self.password}
         self.client.post(url, data2)
-        usuario2 = self.tu.usuario_get(2)
+        usuario2 = self.tu.usuario_get(2, self.client)
 
 
         client_superuser = self.tu.client_login(self.username)
@@ -425,8 +482,8 @@ class MisionTest(APITestCase):
         client_no_superuser = self.tu.client_login(self.username2)
         
         mision = Mision.objects.get(titulo="test")
-        superuser = self.tu.usuario_get(1)
-        no_superuser = self.tu.usuario_get(2)
+        superuser = self.tu.usuario_get(1, self.client)
+        no_superuser = self.tu.usuario_get(2, self.client)
 
         url = reverse('api:mision-update', kwargs={"pk":mision.id})
         data = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}

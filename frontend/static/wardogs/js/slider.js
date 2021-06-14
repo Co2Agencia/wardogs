@@ -3,6 +3,7 @@ var slider = document.getElementById('slider'),
     prev = document.getElementById('prev'),
     next = document.getElementById('next');
 
+
 function slide(wrapper, items, prev, next) {
   var posX1 = 0,
       posX2 = 0,
@@ -125,4 +126,9 @@ function slide(wrapper, items, prev, next) {
   }
 }
 
-slide(slider, sliderItems, prev, next);
+try{
+  slide(slider, sliderItems, prev, next);
+}
+catch{
+  console.log("No hay noticias creadas.")
+}

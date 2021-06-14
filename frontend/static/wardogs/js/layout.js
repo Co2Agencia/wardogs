@@ -8,6 +8,13 @@ const navImgUsuario = document.querySelector("nav .nav-usuario-img img")
 // Info usuario
 const user_id = JSON.parse(document.getElementById("user_id").textContent);
 const user_superuser = JSON.parse(document.getElementById("user_superuser").textContent);
+let user_group;
+try{
+    user_group = JSON.parse(document.getElementById("user_group").textContent);
+}
+catch{
+    user_group = undefined;
+}
 
 //Banner
 const bannerImg = document.querySelector(".banner-img")
@@ -434,7 +441,7 @@ formAcciones.addEventListener("submit", function(e){
     }).then((response) => {
         if(response.status == 200){
             console.log("Noticia Creada!")
-            location.reload
+            location.reload()
             return false
         }
         else{
@@ -823,9 +830,9 @@ class Banners{
         let data = await this.getBanner(sector)
         let img = document.createElement("img")
         let i = document.createElement("i")
-
+        
         i.className = "fas fa-pen"
-        i.setAttribute("onclick", `editBanner('${data.sector}')`)
+        i.setAttribute("onclick", `editBanner('${sector}')`)
 
         img.setAttribute("src", data.img)
         img.setAttribute("alt", `Banner ${data.sector}`)
@@ -856,7 +863,7 @@ class Banners{
 
     getBanner(sector){
         let url = `api/banner-detail/${sector}`
-
+        
         return fetch(url).then(response => response.json()).then(data=> {return data}).catch((error)=>{return undefined})
     }
     

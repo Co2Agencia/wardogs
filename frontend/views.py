@@ -9,6 +9,10 @@ import json
 
 # Create your views here.
 def index(request):
+    try:
+        print("User group: "+ request.user.groups.all()[0].name)
+    except:
+        pass
     noticias = Noticia.objects.all().order_by("-id")[0:9]
     try:
         token = Token.objects.get(user=request.user)
