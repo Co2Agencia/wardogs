@@ -8,6 +8,7 @@ from django.urls import reverse
 from rest_framework import response, status
 from .models import Usuario, imgUsuario, Noticia, Banner, meGusta, Mision,SECTORES_NOMBRES, MisionImg
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth.models import Group
 
 
 class TestUtils():
@@ -70,6 +71,10 @@ class TestUtils():
                 usuario = Usuario.objects.get(username=self.usuarios_data["username2"])
                 return usuario
 
+    def set_staff(self, user):
+        staff = Group.objects.get_or_create(name='Staff')
+        staff = Group.objects.get(name='Staff')
+        staff.user_set.add(user)
 
 
 """ Test Usuarios """
@@ -507,8 +512,11 @@ class MisionTest(APITestCase):
 
 
     def test_create_multiple_imgs(self):
+        # SuperUser
         superuser = Usuario.objects.get(username=self.username)
         superclient = self.tu.client_login(self.username)
+
+        # Usuario Normal
         user = Usuario.objects.get(username=self.username2)
         client = self.tu.client_login(self.username2)
 
@@ -527,6 +535,7 @@ class MisionTest(APITestCase):
         data3 = {'usuario': superuser.pk, "img": img3, "url":url_field}
         data_no_super = {'usuario': user.pk, "img": img4, "url":url_field}
 
+
         # Crea 3 fotos para la mision
         response = superclient.post(url, data, format="multipart")
         response2 = superclient.post(url, data2, format="multipart")
@@ -534,9 +543,14 @@ class MisionTest(APITestCase):
         
         response_no_super = client.post(url, data_no_super, format="multipart")
 
+        # Usuario en grupo staff
+        staff = self.tu.set_staff(user)
+        response_staff = client.post(url, data_no_super, format="multipart")
+
         self.assertEqual(response_no_super.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response3.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_staff.status_code, status.HTTP_200_OK)
 
 
