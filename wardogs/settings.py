@@ -130,6 +130,7 @@ if POSTGRES_URL in os.environ:
     DATABASES['default'] = dj_database_url.config(default=os.environ[POSTGRES_URL])
 
 
+
 # Modelo de autenticacion de usuarios
 AUTH_USER_MODEL = 'api.Usuario'
 
@@ -137,6 +138,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.AllowAllUsersModelBackend', 
     'api.backends.CaseInsensitiveModelBackend',
     )
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

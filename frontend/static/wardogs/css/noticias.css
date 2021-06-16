@@ -1,6 +1,5 @@
 body {
   font-family: "Montserrat", sans-serif;
-  background: rgba(0, 0, 0, 0.9);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -222,6 +221,11 @@ body {
   left: -50%;
   /* Imagen */
   /* Info Noticia */
+}
+
+.noticia:hover {
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
 }
 
 .noticia .img-noticia {

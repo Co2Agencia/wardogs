@@ -1,6 +1,7 @@
 body {
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
+  background: #1e1e1e;
   position: relative;
   padding: 0;
   margin: 0;
@@ -795,5 +796,81 @@ nav .nav-usuarios .btn-ingresar:hover::after {
 
 .alerta-200, .alerta-201 {
   background-color: #27ae27;
+}
+
+footer {
+  width: 100%;
+  background-color: #282828;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  padding: 2rem 5%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+footer .footer-menu-links {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: end;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  position: relative;
+}
+
+footer .footer-menu-links:hover h3 {
+  color: white;
+  border-color: #fff700;
+}
+
+footer h3 {
+  color: white;
+  font-size: 4rem;
+  font-weight: 500;
+  position: absolute;
+  left: -1rem;
+  -webkit-transform: rotate(-90deg) translateX(-50%);
+          transform: rotate(-90deg) translateX(-50%);
+  -webkit-transform-origin: bottom left;
+          transform-origin: bottom left;
+  bottom: 50%;
+  margin: 0;
+  -webkit-transition: ease 200ms;
+  transition: ease 200ms;
+  border-bottom: 1px solid white;
+  padding: 0 1rem;
+  color: #fff700;
+  transition: ease 200ms;
+}
+
+footer a {
+  opacity: .5;
+  margin: .5rem 0;
+  text-decoration: none;
+  color: white;
+  font-weight: 300;
+  -webkit-transition: ease 200ms;
+  transition: ease 200ms;
+}
+
+footer a:hover {
+  color: #fff700;
+  opacity: 1;
 }
 /*# sourceMappingURL=layout.css.map */

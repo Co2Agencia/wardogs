@@ -3,7 +3,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
-from api.models import meGusta, Noticia
+from api.models import meGusta, Noticia, Mision
 from .models import banners
 import json
 
@@ -22,3 +22,7 @@ def index(request):
         "token" : f"{token}",
         "noticias":noticias
     })
+
+
+def Misiones(request):
+    misiones = Mision.objects.all().order_by("-id")

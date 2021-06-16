@@ -1,13 +1,11 @@
 from functools import partial
 
-from django.http import JsonResponse
-from django.shortcuts import redirect, render
-from django.contrib.auth import authenticate, login, logout
-from rest_framework import status
-
 # Para filtros
 from django import template
-
+from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from rest_framework import status
 # Tokens
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -24,11 +22,11 @@ from . import serializers
 # Models
 from .models import Banner, Mision, Noticia, Usuario, imgUsuario, meGusta
 # Serializers
-from .serializers import (BannerSerializer, CrearNoticiaSerializer,ImgUsuarioSerializer, MeGustaSerializer,
-NoticiaSerializer, UsuarioSerializer, MisionSerializer)
-
+from .serializers import (BannerSerializer, CrearNoticiaSerializer,
+                          ImgUsuarioSerializer, MeGustaSerializer,
+                          MisionSerializer, NoticiaSerializer,
+                          UsuarioSerializer)
 from .utils import PaginationClass
-
 
 # try:
 # 	for user in Usuario.objects.all():
@@ -256,7 +254,6 @@ def noticiaCreate(request):
 		if usuario == request.user:
 			user_group_len = len(request.user.groups.all())
 			super_check = request.user.is_superuser
-			print(f"supueruser: {super_check}, nombre: {request.user.username}")
 			if user_group_len > 0:
 				if request.user.groups.all()[0].name == "Staff":
 					serializer.save()
@@ -326,7 +323,6 @@ def noticiaUpdate(request, pk):
 				pass
 
 			if noticia.usuario.id == request.user.id:
-
 				try:
 					serializer.save()
 					data["success"] = "Noticia actualizada con exito!"

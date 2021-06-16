@@ -1,5 +1,6 @@
 import os, glob
 from django.test import TestCase
+from django.test import client
 from django.test.client import Client
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient, APITestCase
@@ -219,22 +220,18 @@ class NoticiaTest(APITestCase):
     password = tu.usuarios_data["password"]
 
     def setUp(self):
-        # Creando usuario
+        # Creando superusuario
         url = reverse('api:usuario-create')
-        # data = {'username': self.username, 'email':self.email, 'password':self.password}
-        # response_client = self.client.post(url, data, format='json')
-        # usuario = Usuario.objects.get(username= self.username)
-        usuario = self.tu.usuario_get(1, self.client)
-        usuario.is_superuser = True
+        superusuario = self.tu.usuario_get(1, self.client)
+        superusuario.is_superuser = True
+        superusuario.save()
         client = self.tu.client_login(self.username)
         img = self.tu.temporary_image()
 
         # Noticia
         url = reverse('api:noticia-create')
-        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
+        data = {'usuario': superusuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
         response = client.post(url, data,format="multipart")
-        print(f"Setup: {response.data}")
-
 
     def test_noticia_list(self):
         client = APIClient()
@@ -243,63 +240,56 @@ class NoticiaTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    
     def test_noticia_detail(self):
-        client = self.tu.client_login(self.username)
+        superclient = self.tu.client_login(self.username)
 
         noticia = Noticia.objects.get(titulo="test")
 
         url1 = reverse('api:noticia-detail', kwargs={"pk":noticia.id})
         url2 = reverse('api:noticia-detail', kwargs={"pk":noticia.id+5})
 
-        response_si_noticia = client.get(url1)
-        response_no_noticia = client.get(url2)
+        response_si_noticia = superclient.get(url1)
+        response_no_noticia = superclient.get(url2)
 
         self.assertEqual(response_si_noticia.status_code, status.HTTP_200_OK)
         self.assertEqual(response_no_noticia.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_noticia_create(self):
+        img = self.tu.temporary_image()
+        img2 = self.tu.temporary_image()
 
-    # def test_noticia_create(self):
-    #     img = self.tu.temporary_image()
-    #     img2 = self.tu.temporary_image()
+        # Usuario SuperUser
+        superuser = self.tu.usuario_get(1, self.client)
+        superclient = self.tu.client_login(self.username)
 
-    #     # Usuario Normal
-    #     usuario = self.tu.usuario_get(1, self.client)
-    #     client = self.tu.client_login(self.username)
+        # Usuario Normal
+        usuario = self.tu.usuario_get(2, self.client)
+        client = self.tu.client_login(self.username2)
 
-    #     # SuperUsuario
-    #     superuser = self.tu.usuario_get(2, self.client)
-    #     superuser.is_admin = True
-    #     superuser.is_superuser = True
-    #     superuser.is_staff = True
-    #     superclient = self.tu.client_login(self.username2)
+        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
+        data_superuser = {'usuario': superuser.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img2}
 
-    #     print("Superuser username: "+superuser.username+f" Issupueruser: {superuser.is_superuser}")
+        url = reverse('api:noticia-create')
 
-    #     data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img}
-    #     data_superuser = {'usuario': superuser.pk, "titulo":"test", "subtitulo":"test", "descripcion":"test", "img": img2}
-
-    #     url = reverse('api:noticia-create')
-
-    #     response = client.post(url, data,format="multipart")
+        response = client.post(url, data,format="multipart")
         
-    #     response_superuser = superclient.post(url, data_superuser, format = "multipart")
+        response_superuser = superclient.post(url, data_superuser, format = "multipart")
 
-    #     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    #     self.assertEqual(response_superuser.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response_superuser.status_code, status.HTTP_200_OK)
         
 
     def test_noticia_update(self):
-        client = self.tu.client_login(self.username)
+        superclient = self.tu.client_login(self.username)
 
         noticia = Noticia.objects.get(titulo="test")
 
         url = reverse('api:noticia-update', kwargs={"pk":noticia.id})
         data = {"titulo":"test2", "subtitulo":"test2", "descripcion":"test2", "img": self.tu.temporary_image()}
 
-        response_si_noticia = client.post(url, data, format="multipart")
-        client.credentials()
-        response_no_noticia = client.post(url, data, format="multipart")
+        response_si_noticia = superclient.post(url, data, format="multipart")
+        superclient.credentials()
+        response_no_noticia = superclient.post(url, data, format="multipart")
 
         self.assertEqual(response_si_noticia.status_code, status.HTTP_200_OK)
         self.assertEqual(response_no_noticia.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -344,7 +334,6 @@ class BannerTest(APITestCase):
         data = {'username': self.username, 'email':self.email, 'password':self.password}
         response1 = self.client.post(url, data, format='json')
         usuario = Usuario.objects.get(username= self.username)
-
         
         usuario.is_superuser = True
         usuario.save()
@@ -446,11 +435,11 @@ class MisionTest(APITestCase):
 
 
         client_superuser = self.tu.client_login(self.username)
-
+        url_field = "https://www.youtube.com/watch?v=9P1HtbpGSCk"
         img = self.tu.temporary_image()
         # Mision
         url = reverse('api:mision-create')
-        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "img": img}
+        data = {'usuario': usuario.pk, "titulo":"test", "subtitulo":"test", "img": img, "url":url_field}
         response = client_superuser.post(url, data,format="multipart")
 
     
@@ -486,7 +475,7 @@ class MisionTest(APITestCase):
         no_superuser = self.tu.usuario_get(2, self.client)
 
         url = reverse('api:mision-update', kwargs={"pk":mision.id})
-        data = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
+        data = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image(), "url": "https://www.youtube.com/watch?v=JQ1mXXmJDYI"}
         data2 = {'usuario': superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
         data3 = {'usuario': no_superuser.id, "titulo":"test", "subtitulo":"test", "img": self.tu.temporary_image()}
 
