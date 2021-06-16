@@ -1,10 +1,15 @@
-# wardogs
-Wardogs WebApp &amp; APIs
+## Para usar repositorio:
+1) Clonamos el repositorio(A) o creamos un repositorio remoto(B):
+    - A| Clonamos:
+        - ``` git clone https://github.com/Co2Agencia/wardogs.git ```
+    
+    - B| Creamos repositorio remote:
+        - Iniciamos repositorio local: ``` git init ```
+        - Conectamos con repostiorio en GITHUB: ``` git remote add origin https://github.com/Co2Agencia/wardogs.git ```
+        - Traemos los cambios de GITHUB a local: ``` git pull origin master ```
+        
+1) Creamos variable de entorno en local
+    - ``` python -m venv env ```
 
-
-### Introducción
-Las APIs aqui presentes permiten comunicarnos con absolutamente todos los features de la página. Hay ciertos comandos que requieren permisos por lo tanto no sera posible usarlos.
-
-
-### Permisos Generales
-Todos tienen acceso a listas de Noticias, detalles de Banners y Misiones.
+2) Descargamos requirements.txt
+    - ``` pip install -r requirements.txt ```
