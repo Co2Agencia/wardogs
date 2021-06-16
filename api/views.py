@@ -20,7 +20,7 @@ from rest_framework.response import Response
 
 from . import serializers
 # Models
-from .models import Banner, Mision, Noticia, Usuario, imgUsuario, meGusta
+from .models import Banner, Mision, Noticia, Usuario, imgUsuario, meGusta, MisionImg
 # Serializers
 from .serializers import (BannerSerializer, CrearNoticiaSerializer,
                           ImgUsuarioSerializer, MeGustaSerializer,
@@ -267,7 +267,6 @@ def noticiaCreate(request):
 					return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
 			if super_check:
-			# else:
 					serializer.save()
 					data["noticia"] = serializer.data
 					return Response(data, status=status.HTTP_200_OK)
@@ -656,18 +655,29 @@ def misionDelete(request, pk):
 
 	try:
 		mision = Mision.objects.get(id=pk)
-		if request.user.is_superuser:
-			mision.delete()
-			data["success"] = f"Mision #{pk} eliminada con exito!"
-			data["status"] = 200
+		user_group_len = len(request.user.groups.all())
+		super_check = request.user.is_superuser
+		if user_group_len > 0:
+			if request.user.groups.all()[0].name == "Staff":
+				mision.delete()
+				data["success"] = f"Mision #{pk} eliminada con exito!"
+				data["status"] = 200
 
-			return Response(data, status=status.HTTP_200_OK)
+				return Response(data, status=status.HTTP_200_OK)
 		
 		else:
-			data["error"] = "El usuario no tiene los permisos necesarios o no esta registrado."
-			data["status"] = 403
+			if super_check:
+				mision.delete()
+				data["success"] = f"Mision #{pk} eliminada con exito!"
+				data["status"] = 200
 
-			return Response(data, status=status.HTTP_403_FORBIDDEN)
+				return Response(data, status=status.HTTP_200_OK)
+
+			else:
+				data["error"] = "El usuario no tiene los permisos necesarios o no esta registrado."
+				data["status"] = 403
+
+				return Response(data, status=status.HTTP_403_FORBIDDEN)
 
 	except:
 		data["error"] = f"La mision #{pk} no existe."
@@ -695,6 +705,52 @@ def misionList(request):
 	serializer = MisionSerializer(noticias, many=True)
 
 	return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def misionImgUpload(request,pk):
+	data = {}
+	try:
+		mision = Mision.objects.get(pk=pk)
+		usuario = request.data["usuario"]
+		img = request.data["img"]
+		url = request.data["url"]
+		usuario = Usuario.objects.get(pk=usuario)
+		if usuario == request.user:
+			user_group_len = len(request.user.groups.all())
+			super_check = request.user.is_superuser
+			
+			if user_group_len > 0:
+				if request.user.groups.all()[0].name == "Staff":
+					img_mision = MisionImg.objects.create(usuario=usuario, mision=mision, img=img, url=url)
+
+					data["img"] = request.data
+					return Response(data, status=status.HTTP_200_OK)
+
+				else:
+					data["error"] = "No tiene permisos suficientes para crear noticia-"
+					data["status"] = 401
+					return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+			if super_check:
+				img_mision = MisionImg.objects.create(usuario=usuario, mision=mision, img=img, url=url)
+				img_mision_data = {"usuario":usuario.pk, "usuario.username":usuario.username , "mision":mision.pk, "img": img_mision.img.url, "url":url}
+				data["img"] = img_mision_data
+				return Response(data, status=status.HTTP_200_OK)
+			
+			else:
+				data["error"] = "No tiene permisos suficientes para crear noticia."
+				data["status"] = 401
+				return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+		else:
+			data["error"]= "El usuario no es el mismo que esta logueado o no se logueo."
+			return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+	except:
+		data["error"] = f"No existe Mision con id {pk}"
+
+		return Response(data, status=status.HTTP_404_NOT_FOUND)
+
 
 """ ZONA Pagination """
 # Noticias Pagination

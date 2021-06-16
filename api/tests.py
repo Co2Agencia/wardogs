@@ -6,7 +6,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient, APITestCase
 from django.urls import reverse
 from rest_framework import response, status
-from .models import Usuario, imgUsuario, Noticia, Banner, meGusta, Mision,SECTORES_NOMBRES
+from .models import Usuario, imgUsuario, Noticia, Banner, meGusta, Mision,SECTORES_NOMBRES, MisionImg
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -433,7 +433,6 @@ class MisionTest(APITestCase):
         self.client.post(url, data2)
         usuario2 = self.tu.usuario_get(2, self.client)
 
-
         client_superuser = self.tu.client_login(self.username)
         url_field = "https://www.youtube.com/watch?v=9P1HtbpGSCk"
         img = self.tu.temporary_image()
@@ -454,7 +453,6 @@ class MisionTest(APITestCase):
     def test_mision_detail(self):
         client = self.tu.client_login(self.username)
         mision = Mision.objects.get(titulo="test")
-
         url1 = reverse('api:mision-detail', kwargs={"pk":mision.id})
         url2 = reverse('api:mision-detail', kwargs={"pk":mision.id+1})
 
@@ -492,9 +490,8 @@ class MisionTest(APITestCase):
         client_superuser = self.tu.client_login(self.username)
         client_no_superuser = self.tu.client_login(self.username2) # No es superuser, tendria que salir error 403
 
-        url = reverse('api:mision-delete', kwargs={"pk":1})
-        url2 = reverse('api:mision-delete', kwargs={"pk":2}) # Mision no existe, tendria que salir error 404
-
+        url = reverse('api:mision-delete', kwargs={"pk":2})
+        url2 = reverse('api:mision-delete', kwargs={"pk":5}) # Mision no existe, tendria que salir error 404
         response_no_superuser = client_no_superuser.delete(url) # No es superuser
         response_superuser_not_found = client_superuser.delete(url2) # No existe la mision
         client_superuser.credentials() # Quitando Token
@@ -503,8 +500,43 @@ class MisionTest(APITestCase):
         client_superuser.credentials(HTTP_AUTHORIZATION=self.tu.token_key(self.username)) # Poniendo Token
         response_superuser_token = client_superuser.delete(url) # Superuser tiene token
 
-        self.assertEqual(response_superuser_token.status_code, status.HTTP_200_OK)
         self.assertEqual(response_superuser_no_token.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response_superuser_not_found.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response_superuser_token.status_code, status.HTTP_200_OK)
         self.assertEqual(response_no_superuser.status_code, status.HTTP_403_FORBIDDEN)
+
+
+    def test_create_multiple_imgs(self):
+        superuser = Usuario.objects.get(username=self.username)
+        superclient = self.tu.client_login(self.username)
+        user = Usuario.objects.get(username=self.username2)
+        client = self.tu.client_login(self.username2)
+
+        mision = Mision.objects.get(titulo="test")
+        
+        url = reverse('api:mision-img-upload', kwargs={"pk":mision.id})
+
+        url_field = "https://www.youtube.com/watch?v=9P1HtbpGSCk"
+        img = self.tu.temporary_image()
+        img2 = self.tu.temporary_image()
+        img3 = self.tu.temporary_image()
+        img4 = self.tu.temporary_image()
+
+        data = {'usuario': superuser.pk, "img": img, "url":url_field}
+        data2 = {'usuario': superuser.pk, "img": img2, "url":url_field}
+        data3 = {'usuario': superuser.pk, "img": img3, "url":url_field}
+        data_no_super = {'usuario': user.pk, "img": img4, "url":url_field}
+
+        # Crea 3 fotos para la mision
+        response = superclient.post(url, data, format="multipart")
+        response2 = superclient.post(url, data2, format="multipart")
+        response3 = superclient.post(url, data3, format="multipart")
+        
+        response_no_super = client.post(url, data_no_super, format="multipart")
+
+        self.assertEqual(response_no_super.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response3.status_code, status.HTTP_200_OK)
+
 

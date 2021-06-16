@@ -40,6 +40,7 @@ urlpatterns = [
 	path('mision-create', views.misionCreate, name="mision-create"),
 	path('mision-delete/<str:pk>', views.misionDelete, name="mision-delete"),
 	path('mision-update/<str:pk>', views.misionUpdate, name="mision-update"),
+	path('mision-img-upload/<str:pk>', views.misionImgUpload, name="mision-img-upload"),
 
 	# Me Gusta
 	path('noticia-megusta', views.meGustaCreate, name="noticia-megusta"),

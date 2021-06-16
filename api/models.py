@@ -122,18 +122,12 @@ class Mision(models.Model):
   def deleteImg(self):
     self.img.delete()
 
-  def get_img(self):
-    imgs = self.mision_img.all()
-    return imgs
-  
-  def delete_imgs(self):
-    imgs = self.get_img()
-    imgs.delete()
-
-
-class ImgMision(models.Model):
-  img = models.ImageField(upload_to="misiones", storage=OverwriteStorage())
-  mision = models.ManyToManyField(Mision, related_name="mision_img", blank=False)
+class MisionImg(models.Model):
+  img = models.ImageField(upload_to="misiones", storage=OverwriteStorage(), default="noticias/tanque_arma3.jpg")
+  mision = models.ForeignKey(Mision, related_name="mision_img", blank=False, on_delete=models.CASCADE)
+  url = models.URLField(max_length=200, blank=True)
+  usuario = models.ForeignKey(Usuario, related_name="mision_img", default=None, blank=False, on_delete=models.SET_DEFAULT)
+  fecha = models.DateTimeField(auto_now_add=True)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
