@@ -121,6 +121,20 @@ class Mision(models.Model):
   def deleteImg(self):
     self.img.delete()
 
+  def get_img(self):
+    imgs = self.mision_img.all()
+    return imgs
+  
+  def delete_imgs(self):
+    imgs = self.get_img()
+    imgs.delete()
+
+
+class ImgMision(models.Model):
+  img = models.ImageField(upload_to="misiones", storage=OverwriteStorage())
+  mision = models.ManyToManyField(Mision, related_name="mision_img", blank=False)
+
+
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
